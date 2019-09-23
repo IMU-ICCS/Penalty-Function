@@ -123,8 +123,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Service 
 public class PenaltyFunction {
 	
-	public static double evaluatePenaltyFunction(Collection<ConfigurationElement> actualConfiguration, Collection<ConfigurationElement> newConfiguration) {
+	public double evaluatePenaltyFunction(Collection<ConfigurationElement> actualConfiguration, Collection<ConfigurationElement> newConfiguration) {
 		// ........
+		log.info("XXXXX properties: {}", properties);
 		List<ConfigurationElement> toBeDeleted = new ArrayList<ConfigurationElement>();
 		List<ConfigurationElement> toBeAdded = new ArrayList<ConfigurationElement>();
 		List<ConfigurationElement> toBeChanged = new ArrayList<ConfigurationElement>();

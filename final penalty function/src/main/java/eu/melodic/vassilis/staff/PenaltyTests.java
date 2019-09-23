@@ -62,13 +62,26 @@ import lombok.Getter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.boot.CommandLineRunner;
 
+import org.springframework.beans.factory.annotation.Autowired;
 
 @SpringBootApplication
 @Slf4j
-public class PenaltyTests {
+public class PenaltyTests implements CommandLineRunner {
+	@Autowired
+	private PenaltyFunction penaltyCalculator;
+	
+	public static void main(String[] args) {
+        log.info("STARTING THE APPLICATION");
+        SpringApplication.run(PenaltyTests.class, args);
+        log.info("APPLICATION FINISHED");
+    }
 
-	public static void main(String[] args) throws Exception {
+
+
+
+	public void run(String... args) throws Exception {
 		Collection<ConfigurationElement> collection_1 = null;
 		Collection<ConfigurationElement> collection_2 = null;
 		
@@ -88,7 +101,7 @@ public class PenaltyTests {
 			
 			log.info("Collection-2:\n{}", PenaltyFunction.toString(collection_2));
 		}
-		PenaltyFunction penaltyCalculator = new PenaltyFunction();
+		//PenaltyFunction penaltyCalculator = new PenaltyFunction();
 		finalll = penaltyCalculator.evaluatePenaltyFunction(collection_1, collection_2);
 		
 	    
