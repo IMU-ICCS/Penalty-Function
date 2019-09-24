@@ -1,0 +1,39 @@
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/C:/PhD_MENTZAS/11%20September%202019/13%20March%202019%20new%20code/penalty-calculator/Penalty-Function/final%20penalty%20function/target/penalty-calculator.jar!/BOOT-INF/lib/logback-classic-1.2.3.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/C:/PhD_MENTZAS/11%20September%202019/13%20March%202019%20new%20code/penalty-calculator/Penalty-Function/final%20penalty%20function/target/penalty-calculator.jar!/BOOT-INF/lib/slf4j-simple-1.6.4.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [ch.qos.logback.classic.util.ContextSelectorStaticBinder]
+19:03:25.182 [main] INFO eu.melodic.vassilis.staff.PenaltyTests - STARTING THE APPLICATION
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.1.5.RELEASE)
+
+2019-09-23 19:03:25.658  INFO 30456 --- [           main] eu.melodic.vassilis.staff.PenaltyTests   : Starting PenaltyTests v2.0.0-SNAPSHOT on DESKTOP-3098C5A with PID 30456 (C:\PhD_MENTZAS\11 September 2019\13 March 2019 new code\penalty-calculator\Penalty-Function\final penalty function\target\penalty-calculator.jar started by VasilAngelo in C:\PhD_MENTZAS\11 September 2019\13 March 2019 new code\penalty-calculator\Penalty-Function\final penalty function)
+2019-09-23 19:03:25.659  INFO 30456 --- [           main] eu.melodic.vassilis.staff.PenaltyTests   : No active profile set, falling back to default profiles: default
+2019-09-23 19:03:26.105  WARN 30456 --- [           main] s.c.a.AnnotationConfigApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'penaltyTests': Unsatisfied dependency expressed through field 'penaltyCalculator'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'penaltyFunction': Unsatisfied dependency expressed through field 'properties'; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'penaltyFunctionProperties' defined in URL [jar:file:/C:/PhD_MENTZAS/11%20September%202019/13%20March%202019%20new%20code/penalty-calculator/Penalty-Function/final%20penalty%20function/target/penalty-calculator.jar!/BOOT-INF/classes!/eu/melodic/vassilis/staff/PenaltyFunctionProperties.class]: Unsatisfied dependency expressed through constructor parameter 0; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'java.lang.String' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+2019-09-23 19:03:26.111  INFO 30456 --- [           main] ConditionEvaluationReportLoggingListener : 
+
+Error starting ApplicationContext. To display the conditions report re-run your application with 'debug' enabled.
+2019-09-23 19:03:26.213 ERROR 30456 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in eu.melodic.vassilis.staff.PenaltyFunctionProperties required a bean of type 'java.lang.String' that could not be found.
+
+The injection point has the following annotations:
+	- @org.springframework.beans.factory.annotation.Autowired(required=true)
+
+
+Action:
+
+Consider defining a bean of type 'java.lang.String' in your configuration.
+

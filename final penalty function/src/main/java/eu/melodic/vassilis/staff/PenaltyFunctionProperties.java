@@ -19,16 +19,7 @@ import java.util.Map;
 public class PenaltyFunctionProperties {
     private final Map<String, String> startupTimes = new HashMap<>();
 
-    private final List<StateInfo> stateInfo;
+    private String stateInfo;
 
-    @Data
-    public static class StateInfo {
-        private double cores;
-        private double memory;
-        private double storage;
 
-        public String toString() {
-            return String.format("StateInfo(cores=%d,ram=%.2f,disk=%.2f)", (int)cores, memory, storage);
-        }
-    }
 }

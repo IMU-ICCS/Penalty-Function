@@ -44,8 +44,8 @@ public class PenaltyFunction {
     private PenaltyFunctionProperties properties;
 
     public double evaluatePenaltyFunction(Collection<ConfigurationElement> actualConfiguration, Collection<ConfigurationElement> newConfiguration) {
-		log.debug("PROPERTIES: startup times:\n{}", properties.getStartupTimes());
-		log.debug("PROPERTIES: state info:\n{}", properties.getStateInfo());
+		log.info("PROPERTIES: startup times:\n{}", properties.getStartupTimes());
+		log.info("PROPERTIES: state info:\n{}", properties.getStateInfo());
 
 		// ........
         List<ConfigurationElement> toBeDeleted = new ArrayList<ConfigurationElement>();
@@ -542,7 +542,7 @@ public class PenaltyFunction {
 		Map<String,String> prop = properties.getStartupTimes();
 		prop.forEach((key, value) -> mcc.set(String.valueOf(key), String.valueOf(value)));
 		prop.forEach((key, value) -> hm.put((String) key, (String) value));
-		log.info(">>>>>>>>>: mcc: {}", hm);
+		log.info(">>>>>>>>>: hm: {}", hm);
 		/*IPATINI: try (InputStream input = new FileInputStream("src\\main\\resources\\config.properties")) {
 
             Properties prop = new Properties();
@@ -643,7 +643,8 @@ public class PenaltyFunction {
 
         //double[][] x = new double[tableStringLength][tableStringLength];
         // load second properties file
-        try (InputStream input1 = new FileInputStream("src\\main\\resources\\config1.properties")) {
+        /* STEFANIDIS
+		try (InputStream input1 = new FileInputStream("src\\main\\resources\\config1.properties")) {
 
             Properties prop1 = new Properties();
 
@@ -690,7 +691,40 @@ public class PenaltyFunction {
             ex.printStackTrace();
         }
 
+		*/
+		
+		      //String[] a = properties.getProperty("stateInfo").split(";");
+			String[] a = properties.getStateInfo().split(";");
 
+            //get two dimensional array from the properties file that has been delineated
+            //double[][] x = fetchArrayFromPropFile("stateInfo",prop1);
+
+            //create the two dimensional array with correct size
+            String[][] array = new String[a.length][a.length];
+
+            //combine the arrays split by semicolin and comma
+            for (int i = 0; i < a.length; i++) {
+                array[i] = a[i].split(",");
+            }
+
+            //Convert two dimensions String Array to two dimensions Double Array
+
+            System.out.println(a.length);
+            System.out.println(xx.length);
+            System.out.println("array: " + java.util.Arrays.deepToString(array));
+            System.out.println("xx: " + java.util.Arrays.deepToString(xx));
+            for (int k = 0; k < tableStringLength; k++) {
+                for (int j = 0; j < 3; j++) {
+                    //tableDouble[k][j]= Double.parseDouble(tableString[k][j]);
+                    //xx[k][j]= Double.valueOf(array[k][j]).doubleValue();
+                    xx[k][j] = Double.parseDouble(array[k][j]);
+
+                }
+            }
+
+            System.out.println("array: " + java.util.Arrays.deepToString(array));
+            System.out.println("xx_after_fill: " + java.util.Arrays.deepToString(xx));
+         
         log.info(">>>>>>>>>: xx: {}", xx);
         //whenCorrectInfoDatabaseConnects();
 
