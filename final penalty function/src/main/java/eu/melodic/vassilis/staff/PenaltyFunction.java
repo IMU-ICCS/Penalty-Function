@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Institute of Communication and Computer Systems (imu.iccs.com)
+ * Copyright (C) 2019 Institute of Communication and Computer Systems (imu.iccs.com)
  *
  * This Source Code Form is subject to the terms of the
  * Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -28,13 +28,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-//import net.spy.memcached.BinaryConnectionFactory;
-//import net.spy.memcached.MemcachedClient;
-// for DB queries
-//import InfluxDBMapper;
-// end of imports for queries to DB
-//import org.influxdb.InfluxDBFactory.connect;
-//import javax.persistence.Column;
+
 
 @Slf4j
 @Service
@@ -46,6 +40,8 @@ public class PenaltyFunction {
     public double evaluatePenaltyFunction(Collection<ConfigurationElement> actualConfiguration, Collection<ConfigurationElement> newConfiguration) {
 		log.info("PROPERTIES: startup times:\n{}", properties.getStartupTimes());
 		log.info("PROPERTIES: state info:\n{}", properties.getStateInfo());
+		log.info("PROPERTIES: Memcached Port operation info:\n{}", properties.getPort());
+		log.info("PROPERTIES: Memcached Host operattion info:\n{}", properties.getHost());
 
 		// ........
         List<ConfigurationElement> toBeDeleted = new ArrayList<ConfigurationElement>();
@@ -116,33 +112,10 @@ public class PenaltyFunction {
         log.info("Penalty: ++++++");
         String str1 = "";
         String str2 = "";
-
-
-        try (InputStream reader = new FileInputStream("src\\main\\resources\\memcached.properties")) {
-
-            Properties p = new Properties();
-            p.load(reader);
-            System.out.println(p.getProperty("host"));
-            System.out.println(p.getProperty("port"));
-            str1 = p.getProperty("host");
-            str2 = p.getProperty("port");
-
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-	     
-		 
-		 /*
-		 PenaltyFunctionProperties reader = new PenaltyFunctionProperties();
-		 Properties p=new Properties();
-         p.load(reader);
-         System.out.println(p.getProperty("host"));
-         System.out.println(p.getProperty("port"));
-         str1 = p.getProperty("host");
-		 str2 = p.getProperty("port");
-		*/
-
+	    // Get memcached connection info from properties file
+		str1 = properties.getHost(); 
+		str2 = properties.getPort();
+		
 
         //initialize the SockIOPool that maintains the Memcached Server Connection Pool
 
@@ -381,6 +354,12 @@ public class PenaltyFunction {
 
         String arr = ComponMeasurements.toString();
         System.out.println(arr);
+		
+		//check if we have Null Component Deployment Times and act accordingy +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		
+	if (arr != null && !arr.isEmpty()) {
+            
+        
         //Find the Average Component Deployment Time ==>  avg
         // cnt are the number of Components Deployed along with their times
         double sum = 0;
@@ -416,177 +395,24 @@ public class PenaltyFunction {
 
         System.out.println("The max Component Deployment Time value is " + maxx);
 
-        /*
-         * To convert String object to String array, first thing
-         * we need to consider is to how we want to create array.
-         *
-         * In this example, array will be created by words contained
-         * in the original String object.
-         *
-         * To convert String to String array, use
-         * String[] split(String delimiter) method of Java String
-         * class as given below.
-         */
-		/*
-		String strArray[] = arr.split(" ");
-		
-		System.out.println("String converted to String array");
-		
-		//print elements of String array
-		for(int i=0; i < strArray.length; i++){
-			System.out.println(strArray[i]);
-		}
-		double[] cc = Arrays.stream(strArray).mapToDouble(Double::parseDouble).toArray();
-		
-		//Find the maximum Comp Depl time
-		double maxx = cc[0];
-        for (int i = 1; i < cc.length; i++){
-             if(maxx<cc[i]){
-                  maxx=cc[i]; //swapping
-                  cc[i]=cc[0];
-                }
-            }
-            System.out.println("The max Depl Time value is "+ maxx);
-			
-			
-		*/
-		/*
-		for(int i=0; i<ComponMeasurements.size(); i++){
-            String[] stringArray = ComponMeasurements.get(i);
-
-           for(String s : stringArray) {
-                 System.out.println(s);
-               }
-
-   
-        }
-		*/
-		
-		/*
-		double[] arrDouble = new double[arrString.Length];
-        for(int i=0; i<arrString.Length; i++)
-        {
-          arrDouble[i] = double.Parse(arrString[i]);
-        }
-		*/
-
-        //String [] strArr;
-        //for(int i = 0 ; i < ComponMeasurements.length ; i ++){
-        //    strArr[i] = (String) ComponMeasurements[i];
-        //}
-
-        //String[] arr = (String)ComponMeasurements.toArray(new String[] {});
-
-        //String[] ComponMeasString = ComponMeasurements.stream().toArray(String[]::new);
-
-
-        //double[] cc = Arrays.stream(arr).mapToDouble(Double::parseDouble).toArray();
-
-        //System.out.println(Arrays.toString(ComponMeasurements.toArray()));
-        //System.out.println(String.valueOf(ComponMeasurements));//toString() is easy and good enough for debugging.
-        //for (int i = 0; i < cc.size(); i++) {
-        //	System.out.println(cc.get(i));
-        //}
-		
-		
-		
-		/*
-		QueryResult queryResult = connection.performQuery("Select * from ComponentTime", dbName);
-		
-		InfluxDBResultMapper resultMapper = new InfluxDBResultMapper();
-		
-		List<ComponentTimePoint> ComponentTimePointList = resultMapper.toPOJO(queryResult, ComponentTimePoint.class);
-		
-		assertEquals(1, ComponentTimePointList.size());
-		*/
-
+      
+        //Close connection to Influx DB 
 
         influxDB.close();
 		
         		
-		/*
-		String queryString = new StringBuilder()
-            .append("SELECT timeDepl FROM ComponentTime")
-            .append(dbName)
-            .toString();
-
-        Query query1 = new Query(queryString, dbName);
-        List<QueryResult.Result> results2 = influxDB.query(query1).getResults();
 		
-		System.out.println(results2);
-		
-		*/
-
-
-        //Query query1 = new Query("SELECT timeDepl FROM ComponentTime", dbName);
-        //LOG.debug(query1);
-        //System.out.println(influxDB.query(query1));
-
-
-        //List<Deployment> queryResult = store.query(dbName, query1, TimeUnit.MILLISECONDS);
-        //System.out.println(queryResult);
-
-
-        //LOG.debug("{} series read", queryResult.size());
-        //if (queryResult.isEmpty()) {
-        //   return null;
-        //}
-
-        //LOG.debug("{} rows read in first list", queryResult.get(0).getRows().size());
 
         HashMap<String, String> hm = new HashMap<String, String>();
 
 
-        // load first properties file
+        // load old first properties file DATA 
 		//IPATINI:
 		Map<String,String> prop = properties.getStartupTimes();
 		prop.forEach((key, value) -> mcc.set(String.valueOf(key), String.valueOf(value)));
 		prop.forEach((key, value) -> hm.put((String) key, (String) value));
 		log.info(">>>>>>>>>: hm: {}", hm);
-		/*IPATINI: try (InputStream input = new FileInputStream("src\\main\\resources\\config.properties")) {
-
-            Properties prop = new Properties();
-
-            // load a properties file
-            prop.load(input);
-            // print key and values
-            prop.forEach((key, value) -> System.out.println("VMtype : " + key + ", Boot time Value : " + value));
-            // for each key - value pair set to the memcached
-            prop.forEach((key, value) -> mcc.set(String.valueOf(key), String.valueOf(value)));
-            //prop.forEach(key -> add.keys(String.valueOf(key)));
-
-
-            //prop.forEach((key) -> keys.add(String.valueOf(key)));
-            //prop.forEach((entry) -> keys.add(String.valueOf(entry.getKey())));
-            // Get all key
-            //prop.keySet().forEach(x -> keys.add(String.valueOf(x)));
-            prop.keySet().forEach(x -> System.out.println(x));
-            Set<Object> objects = prop.keySet();
-            //---new-----
-            prop.forEach((key, value) -> hm.put((String) key, (String) value));
-            log.info(">>>>>>>>>: mcc: {}", hm);
-
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }*/
-
-        //mcc.set("t1.micro", "50");
-        //mcc.set("t1.small", "100");
-        //mcc.set("t1.large", "110");
-        //mcc.set("t1.xlarge", "120");
-        //mcc.set("t1.medium", "130");
-        //mcc.set("t1.xlarge", "130");
-        //mcc.set("m1.tiny",   "55");
-        //mcc.set("m1.small",  "79");
-        //mcc.set("m1.medium", "88");
-        //mcc.set("m1.large",  "132");
-        //mcc.set("m1.xlarge", "140");
-
-
-        //String [] keys = {"t1.micro","t1.small","t1.large","t1.xlarge","t1.medium","t1.xxlarge","m1.tiny","m1.small","m1.medium","m1.large","m1.xlarge"};
-        //HashMap<String,Object> hm = (HashMap<String, Object>) mcc.getMulti(keys);
-        //log.info(">>>>>>>>>: mcc: {}",hm);
+		
 
         // get the values of the HashMap hm returned as an Array
         String[] yy = hm.values().toArray(new String[0]);
@@ -638,39 +464,28 @@ public class PenaltyFunction {
         System.out.println(xx.length);
 
         OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
-        //Instantiate data for train of OLSMulitple regression algorithm
-        //double[] y = new double[] {50, 100, 110, 120, 130, 130, 55, 79, 88, 132,140};
+        
+        
+		// load old second properties file DATA : STEFANIDI
+		//String[] a = properties.getProperty("stateInfo").split(";");
+	    String[] a = properties.getStateInfo().split(";");
 
-        //double[][] x = new double[tableStringLength][tableStringLength];
-        // load second properties file
-        /* STEFANIDIS
-		try (InputStream input1 = new FileInputStream("src\\main\\resources\\config1.properties")) {
 
-            Properties prop1 = new Properties();
 
-            // load a properties file
-            prop1.load(input1);
+        //create the two dimensional array with correct size
+        String[][] array = new String[a.length][a.length];
 
-            //get array split up by the semicolon
-            String[] a = prop1.getProperty("stateInfo").split(";");
+        //combine the arrays split by semicolin and comma
+        for (int i = 0; i < a.length; i++) {
+            array[i] = a[i].split(",");
+         }
 
-            //get two dimensional array from the properties file that has been delineated
-            //double[][] x = fetchArrayFromPropFile("stateInfo",prop1);
+        //Convert two dimensions String Array to two dimensions Double Array
 
-            //create the two dimensional array with correct size
-            String[][] array = new String[a.length][a.length];
-
-            //combine the arrays split by semicolin and comma
-            for (int i = 0; i < a.length; i++) {
-                array[i] = a[i].split(",");
-            }
-
-            //Convert two dimensions String Array to two dimensions Double Array
-
-            System.out.println(a.length);
-            System.out.println(xx.length);
-            System.out.println("array: " + java.util.Arrays.deepToString(array));
-            System.out.println("xx: " + java.util.Arrays.deepToString(xx));
+        System.out.println(a.length);
+        System.out.println(xx.length);
+        System.out.println("array: " + java.util.Arrays.deepToString(array));
+        System.out.println("xx: " + java.util.Arrays.deepToString(xx));
             for (int k = 0; k < tableStringLength; k++) {
                 for (int j = 0; j < 3; j++) {
                     //tableDouble[k][j]= Double.parseDouble(tableString[k][j]);
@@ -680,68 +495,11 @@ public class PenaltyFunction {
                 }
             }
 
-            System.out.println("array: " + java.util.Arrays.deepToString(array));
-            System.out.println("xx_after_fill: " + java.util.Arrays.deepToString(xx));
-
-            //x[][]= Double.valueOf(array[][]).doubleValue();
-
-            //double[][] x = Arrays.stream(array).mapToDouble(Double::parseDouble).toArray();
-            //double [][] x = array ;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-		*/
-		
-		      //String[] a = properties.getProperty("stateInfo").split(";");
-			String[] a = properties.getStateInfo().split(";");
-
-            //get two dimensional array from the properties file that has been delineated
-            //double[][] x = fetchArrayFromPropFile("stateInfo",prop1);
-
-            //create the two dimensional array with correct size
-            String[][] array = new String[a.length][a.length];
-
-            //combine the arrays split by semicolin and comma
-            for (int i = 0; i < a.length; i++) {
-                array[i] = a[i].split(",");
-            }
-
-            //Convert two dimensions String Array to two dimensions Double Array
-
-            System.out.println(a.length);
-            System.out.println(xx.length);
-            System.out.println("array: " + java.util.Arrays.deepToString(array));
-            System.out.println("xx: " + java.util.Arrays.deepToString(xx));
-            for (int k = 0; k < tableStringLength; k++) {
-                for (int j = 0; j < 3; j++) {
-                    //tableDouble[k][j]= Double.parseDouble(tableString[k][j]);
-                    //xx[k][j]= Double.valueOf(array[k][j]).doubleValue();
-                    xx[k][j] = Double.parseDouble(array[k][j]);
-
-                }
-            }
-
-            System.out.println("array: " + java.util.Arrays.deepToString(array));
-            System.out.println("xx_after_fill: " + java.util.Arrays.deepToString(xx));
+        System.out.println("array: " + java.util.Arrays.deepToString(array));
+        System.out.println("xx_after_fill: " + java.util.Arrays.deepToString(xx));
          
         log.info(">>>>>>>>>: xx: {}", xx);
-        //whenCorrectInfoDatabaseConnects();
-
-
-        // double[][] x = new double[11][];
-        // x[0]  = new double[] {1, 0.6, 0};
-        // x[1]  = new double[] {1, 1.7, 160};
-        // x[2]  = new double[] {4, 7.5, 850};
-        // x[3]  = new double[] {8, 15, 1690};
-        // x[4]  = new double[] {7, 17.1, 420};
-        // x[5]  = new double[] {5, 2, 350};
-        // x[6]  = new double[] {1, 0.5, 0};
-        // x[7]  = new double[] {1, 2.048, 10};
-        // x[8]  = new double[] {2, 4.096, 10};
-        // x[9]  = new double[] {4, 8.192, 20};
-        // x[10] = new double[] {8,16.384, 40};
-
+        
 
         regression.newSampleData(y, xx);
         regression.setNoIntercept(true);
@@ -764,11 +522,6 @@ public class PenaltyFunction {
         //System.out.println("residual: " + residuals);
         System.out.println("rSquared: " + rSquared);
 
-
-        //Double[] decMax = {-2.8, -8.8, 2.3, 7.9, 4.1, -1.4, 11.3, 10.4, 8.9, 8.1, 5.8, 5.9, 7.8, 4.9, 5.7, -0.9, -0.4, 7.3, 8.3, 6.5, 9.2, 3.5, 3.0, 1.1, 6.5, 5.1, -1.2, -5.1, 2.0, 5.2, 2.1};
-        //List<double> a = new ArrayList<double>(Arrays.asList(yyy));
-        //System.out.println("The highest VM Startup time is: " + Collections.max(a));
-        //System.out.println("rSquared: " + rSquared);
 
         for (String key : hm.keySet()) {
             int value = 0;
@@ -819,57 +572,286 @@ public class PenaltyFunction {
 
         resultss = ((((((result + result2) / value1) + avg) / 2) - min) / (maxx - min));
         return resultss;
+		
+		
+		
+	}
+    else {
+          //do appropriate things for only VM startup times existing  
+	    HashMap<String,String> hm = new HashMap<String, String>();
+		
+		
+		// load first properties file--REMOVED
+/*		try (InputStream input = new FileInputStream("src\\main\\resources\\config.properties")) {
+
+            Properties prop = new Properties();
+
+            // load a properties file
+            prop.load(input);
+			// print key and values
+            prop.forEach((key, value) -> System.out.println("VMtype : " + key + ", Boot time Value : " + value));
+			// for each key - value pair set to the memcached
+			prop.forEach((key, value) -> mcc.set(String.valueOf(key),String.valueOf(value))); 
+            //prop.forEach(key -> add.keys(String.valueOf(key))); 
+			
+			
+            //prop.forEach((key) -> keys.add(String.valueOf(key)));			
+			//prop.forEach((entry) -> keys.add(String.valueOf(entry.getKey())));
+			// Get all key
+            //prop.keySet().forEach(x -> keys.add(String.valueOf(x)));
+            prop.keySet().forEach(x -> System.out.println(x));
+            Set<Object> objects = prop.keySet();
+			//---new-----
+			prop.forEach((key, value) -> hm.put((String) key,(String) value));
+			log.info(">>>>>>>>>: mcc: {}",hm);
+		    
+			
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+		   */
+
+		
+		
+        // load old first properties file DATA 
+		//IPATINI:
+		Map<String,String> prop = properties.getStartupTimes();
+		prop.forEach((key, value) -> mcc.set(String.valueOf(key), String.valueOf(value)));
+		prop.forEach((key, value) -> hm.put((String) key, (String) value));
+		log.info(">>>>>>>>>: hm: {}", hm);
+		
+
+         // get the values of the HashMap hm returned as an Array
+		String[] yy = hm.values().toArray(new String[0]);
+		
+		System.out.println(Arrays.toString(yy));
+		
+		//Instantiate data for train of OLSMulitple regression algorithm
+		//convert String Array to double Array
+		double[] y = Arrays.stream(yy).mapToDouble(Double::parseDouble).toArray();
+		
+		//Find the maximum VM Startup time
+		double max = y[0];
+        for (int i = 1; i < y.length; i++){
+             if(max<y[i]){
+                  max=y[i]; //swapping
+                  y[i]=y[0];
+                }
+            }
+            System.out.println("The max VM Startup value is "+ max);
+		
+
+        //Find the mimimum VM Startup time		
+		double min = y[0];
+        for (int i = 1; i < y.length; i++){
+             if(min>y[i]){
+                  min=y[i]; //swapping
+                  y[i]=y[0];
+                }
+            }
+            System.out.println("The min VM Startup value is "+ min);
+		
+		
+		
+		
+		
+		
+         log.info(">>>>>>>>>: y: {}",y);
+		//System.out.println(Arrays.toString(values)); 
+		
+		log.info(">>>>>>>>>: y.length: ",y.length);
+		System.out.println(y.length); 
+		
+		tableStringLength=y.length;
+		   
+		log.info(">>>>>>>>>: tableStringLength: ",tableStringLength);
+		 
+		System.out.println(y.length); 
+        //double [][]tableDouble= null;
+		   
+		//instantiate the double array
+        double[][] xx = new double[tableStringLength][3];
+		   
+		System.out.println(xx.length);
+		  
+		OLSMultipleLinearRegression regression = new OLSMultipleLinearRegression();
+	    //Instantiate data for train of OLSMulitple regression algorithm
+	    //double[] y = new double[] {50, 100, 110, 120, 130, 130, 55, 79, 88, 132,140};
+		 
+		 
+		/*  load second properties files ----- REMOVED  
+		//double[][] x = new double[tableStringLength][tableStringLength];
+	    // load second properties file
+		try (InputStream input1 = new FileInputStream("src\\main\\resources\\config1.properties")){
+
+            Properties prop1 = new Properties();
+
+            // load a properties file
+            prop1.load(input1);
+			
+			//get array split up by the semicolon
+            String[] a = prop1.getProperty("stateInfo").split(";");
+			
+			//get two dimensional array from the properties file that has been delineated
+            //double[][] x = fetchArrayFromPropFile("stateInfo",prop1);
+			
+			//create the two dimensional array with correct size
+            String[][] array = new String[a.length][a.length];
+
+	        //combine the arrays split by semicolin and comma 
+            for(int i = 0;i < a.length;i++) {
+                array[i] = a[i].split(",");
+        }
+			
+		//Convert two dimensions String Array to two dimensions Double Array
+			
+		System.out.println(a.length);
+		System.out.println(xx.length);
+		System.out.println("array: "+java.util.Arrays.deepToString(array));
+		System.out.println("xx: "+java.util.Arrays.deepToString(xx));
+			for(int k=0; k<tableStringLength; k++) {
+                 for(int j=0; j<3; j++) {
+                     //tableDouble[k][j]= Double.parseDouble(tableString[k][j]);
+					 //xx[k][j]= Double.valueOf(array[k][j]).doubleValue();
+                       xx [k][j]= Double.parseDouble(array[k][j]);
+					   
+					   }
+                    }
+			
+		System.out.println("array: "+java.util.Arrays.deepToString(array));
+	    System.out.println("xx_after_fill: "+java.util.Arrays.deepToString(xx));
+		   
+		//x[][]= Double.valueOf(array[][]).doubleValue();
+			
+	    //double[][] x = Arrays.stream(array).mapToDouble(Double::parseDouble).toArray();
+		//double [][] x = array ;
+		}
+			
+			catch (IOException ex) {
+            ex.printStackTrace();
+        }
+	
+
+        log.info(">>>>>>>>>: xx: {}",xx);
+	    */
+           
+			
+	       
+		// load old second properties file DATA : STEFANIDI
+		//String[] a = properties.getProperty("stateInfo").split(";");
+	    String[] a = properties.getStateInfo().split(";");
+
+
+
+        //create the two dimensional array with correct size
+        String[][] array = new String[a.length][a.length];
+
+        //combine the arrays split by semicolin and comma
+        for (int i = 0; i < a.length; i++) {
+            array[i] = a[i].split(",");
+         }
+
+        //Convert two dimensions String Array to two dimensions Double Array
+
+        System.out.println(a.length);
+        System.out.println(xx.length);
+        System.out.println("array: " + java.util.Arrays.deepToString(array));
+        System.out.println("xx: " + java.util.Arrays.deepToString(xx));
+            for (int k = 0; k < tableStringLength; k++) {
+                for (int j = 0; j < 3; j++) {
+                    //tableDouble[k][j]= Double.parseDouble(tableString[k][j]);
+                    //xx[k][j]= Double.valueOf(array[k][j]).doubleValue();
+                    xx[k][j] = Double.parseDouble(array[k][j]);
+
+                }
+            }
+
+        System.out.println("array: " + java.util.Arrays.deepToString(array));
+        System.out.println("xx_after_fill: " + java.util.Arrays.deepToString(xx));
+         
+        log.info(">>>>>>>>>: xx: {}", xx);   
+	       
+
+	    regression.newSampleData(y, xx);
+	    regression.setNoIntercept(true);
+	    // Get the regression parameters and residuals
+	    double[] betaHat = regression.estimateRegressionParameters();
+	    double[] residuals = regression.estimateResiduals();
+	    double rSquared = regression.calculateRSquared();
+	    //print them
+	        
+	    System.out.println("Regression parameters: ");
+	    for (int i = 0; i < betaHat.length; i++) {
+	            System.out.println(betaHat[i]);
+	    }
+
+	    System.out.println("Residual parameter:");
+	    for (int i = 0; i < residuals.length; i++) {
+	            System.out.println(residuals[i]);
+	    }
+	        
+	    //System.out.println("residual: " + residuals);
+	    System.out.println("rSquared: " + rSquared);
+			
+			
+	    //Double[] decMax = {-2.8, -8.8, 2.3, 7.9, 4.1, -1.4, 11.3, 10.4, 8.9, 8.1, 5.8, 5.9, 7.8, 4.9, 5.7, -0.9, -0.4, 7.3, 8.3, 6.5, 9.2, 3.5, 3.0, 1.1, 6.5, 5.1, -1.2, -5.1, 2.0, 5.2, 2.1};
+        //List<double> a = new ArrayList<double>(Arrays.asList(yyy));
+        //System.out.println("The highest VM Startup time is: " + Collections.max(a));
+	    //System.out.println("rSquared: " + rSquared);
+		
+	for(String key : hm.keySet()){
+			int value =0;
+			
+			
+			// value=((Integer) hm.get(key)).intValue();//here is an ERROR 
+			value=Integer.parseInt((String) hm.get(key));
+			for (ConfigurationElement s33 : results) {
+				log.info("KEY: {},  s33: {}", key, s33.getNodeCandidate().getHardware().getName());
+				
+				if (key.equals(s33.getNodeCandidate().getHardware().getName())){
+			
+			//value = Integer.valueOf((String) hm.get(key));
+			result += value; 
+			log.info("RESULT:{}", result);
+			value1 = value1 + 1;
+			System.out.println("KEY:"+key+" VALUE:"+hm.get(key));
+			}
+			
+			if (!(hm.containsKey(s33.getNodeCandidate().getHardware().getName()))){
+				
+			value2=betaHat[0]+betaHat[1] * (s33.getNodeCandidate().getHardware().getCores())+betaHat[2] * (s33.getNodeCandidate().getHardware().getRam())+betaHat[3] * (s33.getNodeCandidate().getHardware().getDisk());
+            System.out.println("value custom:"+value2);
+            result2 += value2;			
+			value1 = value1 + 1;
+			}
+				
+			
+		//	if (!(s33.getNodeCandidate().getHardware().getName()).equals("t1.micro") && !(s33.getNodeCandidate().getHardware().getName()).equals("t1.small") && !(s33.getNodeCandidate().getHardware().getName()).equals("t1.large") && !(s33.getNodeCandidate().getHardware().getName()).equals("t1.xlarge") && !(s33.getNodeCandidate().getHardware().getName()).equals("t1.medium") && !(s33.getNodeCandidate().getHardware().getName()).equals("t1.xxlarge") && 
+		//	!(s33.getNodeCandidate().getHardware().getName()).equals("m1.tiny") && !(s33.getNodeCandidate().getHardware().getName()).equals("m1.small") && !(s33.getNodeCandidate().getHardware().getName()).equals("m1.medium") && !(s33.getNodeCandidate().getHardware().getName()).equals("m1.large") && !(s33.getNodeCandidate().getHardware().getName()).equals("m1.xlarge")) {
+		//	value2=betaHat[0]+betaHat[1] * (s33.getNodeCandidate().getHardware().getCores())+betaHat[2] * (s33.getNodeCandidate().getHardware().getRam())+betaHat[3] * (s33.getNodeCandidate().getHardware().getDisk());
+        //    System.out.println("value custom:"+value2);
+        //    result2 += value2;			
+		//	value1 = value1 + 1;
+		//	
+		//	
+		//	}
+			
+			
+		}
+			
+			
+			
+	}
+	   
+	   
+	   resultss= ((((result+result2)/value1)-min)/(max-min));
+		
+		return resultss;
+    }
     }
 
-    //@Test
-    //static public void whenCorrectInfoDatabaseConnects() {
-    // 
-    //    InfluxDB connection = connectDatabase();
-    //    assertTrue(pingServer(connection));
-    //	assertTrue("This will succeed.", pingServer(connection));
-    //    assertTrue("This will fail!", pingServer(connection));
-    //}
-
-    //static private InfluxDB connectDatabase() {
-
-    // Connect to database assumed on localhost with default credentials.
-    //  return  InfluxDBFactory.connect("http://134.60.152.213:8888", "vasilis", "EiWeif0w");
-
-    //}
-
-
-    //static private boolean pingServer(InfluxDB influxDB) {
-    //    try {
-    //        // Ping and check for version string
-    //        Pong response = influxDB.ping();
-    //        if (response.getVersion().equalsIgnoreCase("unknown")) {
-    //            log.error("Error pinging server.");
-    //            return false;
-    //        } else {
-    //            log.info("Database version: {}", response.getVersion());
-    //            return true;
-    //        }
-    //    } catch (InfluxDBIOException idbo) {
-    //        log.error("Exception while pinging database: ", idbo);
-    //        return false;
-    //    }
-    //}	
-	
-	
-	/*@Measurement(name = "ComponentTime")
-    public class ComponentTimePoint {
- 
-    @Column(name = "time")
-    private Instant time;
- 
-    @Column(name = "ComponentName")
-    private String ComponentName;
- 
-    @Column(name = "timeDepl")
-    private Long timeDepl;
- 
-    }
-	*/
+  
 
     public static boolean containsEquivalent(Collection<ConfigurationElement> collection, ConfigurationElement element) {
         for (ConfigurationElement ce : collection) {
@@ -939,26 +921,6 @@ public class PenaltyFunction {
         sb.append("]");
         return sb.toString();
     }
-	/*
-	@ApplicationScoped
-   public class Producer {
- 
-    private InfluxDB influxDB;
- 
-    @Produces
-    @Named
-    public InfluxDB getInfluxDB() {
-        InfluxDB db = InfluxDBFactory.connect("http://172.17.0.2:8086", "root", "root");
- 
-        String dbName = "java";
- 
-            // Create a database
-        db.createDatabase(dbName);
-        return db;
-    }
- 
-}
-
-*/
+	
 
 }
